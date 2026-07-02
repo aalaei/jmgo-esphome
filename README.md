@@ -30,6 +30,9 @@ esp32:
   board: esp32-c3-devkitm-1   # change to match your chip — see Requirements
   framework:
     type: esp-idf
+    sdkconfig_options:
+      CONFIG_BT_ENABLED: "y"
+      CONFIG_BT_NIMBLE_ENABLED: "y"
 
 wifi:
   ssid: !secret wifi_ssid
@@ -46,8 +49,12 @@ ota:
 logger:
 ```
 
-That's it. ESPHome pulls the package and the C++ driver from this repo automatically —
-no `.h` file to download manually, no `sdkconfig_options` to set.
+ESPHome pulls the package and the C++ driver from this repo automatically —
+no `.h` file to download manually.
+
+> **Note:** `sdkconfig_options` are required because the BLE wake uses NimBLE.
+> Do **not** combine this package with a `bluetooth_proxy` on the same device —
+> Bluetooth proxy uses the Bluedroid BLE stack, which conflicts with NimBLE.
 
 ## Entity naming
 

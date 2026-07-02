@@ -3,9 +3,14 @@ import esphome.config_validation as cv
 
 # ESPHome external component for JMGO projector LAN + BLE control.
 #
-# Injects jmgo_lan_ble.h into the build, sets the projector IP during setup(),
-# and enables CONFIG_BT_ENABLED + CONFIG_BT_NIMBLE_ENABLED automatically so
-# users don't need sdkconfig_options in their YAML.
+# Injects jmgo_lan_ble.h into the build and calls jmgo_set_projector_ip()
+# during setup().
+#
+# NimBLE (used for BLE wake) requires CONFIG_BT_ENABLED and
+# CONFIG_BT_NIMBLE_ENABLED in your esp32: sdkconfig_options.
+# This component intentionally does NOT set those options — doing so
+# via the Python API conflicts with other BLE stacks (e.g. bluetooth_proxy
+# uses Bluedroid, not NimBLE) and the correct values depend on your device.
 
 CODEOWNERS = []
 
@@ -17,13 +22,3 @@ async def to_code(config):
     cg.add_global(cg.RawExpression('#include "jmgo_lan_ble.h"'))
     ip = config["projector_ip"]
     cg.add(cg.RawExpression(f'jmgo_set_projector_ip("{ip}")'))
-
-    # Enable BLE sdkconfig options when using ESP-IDF.
-    # Wrapped in try/except for compatibility across ESPHome versions —
-    # CORE.using_esp_idf was removed in newer releases.
-    try:
-        from esphome.components.esp32 import add_idf_sdkconfig_option
-        add_idf_sdkconfig_option("CONFIG_BT_ENABLED", True)
-        add_idf_sdkconfig_option("CONFIG_BT_NIMBLE_ENABLED", True)
-    except Exception:
-        pass
