@@ -12,6 +12,7 @@
 substitutions:
   device_name:        "jmgo-projector"     # ESPHome node ID (lowercase, hyphens only)
   projector_name:     "Projector"          # HA device display name — override to e.g. "N1S 4K" or "Living Room"
+  projector_id:       ""                   # HA device ID to bind entities to (leave empty for default)
   projector_ip:       "192.168.1.100"      # OVERRIDE with your projector's static IP
 
   # ── Key IDs (Android KeyEvent codes) ─────────────────────────────────────────
@@ -110,6 +111,7 @@ binary_sensor:
     id: projector_online
     name: "Online"
     device_class: connectivity
+    device_id: "${projector_id}"
 
 # ── Scripts ──────────────────────────────────────────────────────────────────
 script:
@@ -138,6 +140,7 @@ switch:
   - platform: template
     id: switch_power
     name: "Power"
+    device_id: "${projector_id}"
     icon: mdi:projector
     restore_mode: DISABLED
     lambda: return id(g_online);
@@ -151,6 +154,7 @@ button:
 
   - platform: template
     name: "BLE Wake"
+    device_id: "${projector_id}"
     icon: mdi:bluetooth
     entity_category: diagnostic
     on_press:
@@ -158,84 +162,98 @@ button:
 
   - platform: template
     name: "Quick Settings"
+    device_id: "${projector_id}"
     icon: mdi:cog-outline
     on_press:
       - script.execute: script_quick_settings
 
   - platform: template
     name: "Calibrate"
+    device_id: "${projector_id}"
     icon: mdi:image-filter-center-focus
     on_press:
       - lambda: jmgo_key(${key_calibrate});
 
   - platform: template
     name: "Up"
+    device_id: "${projector_id}"
     icon: mdi:arrow-up-circle
     on_press:
       - lambda: jmgo_key(${key_up});
 
   - platform: template
     name: "Down"
+    device_id: "${projector_id}"
     icon: mdi:arrow-down-circle
     on_press:
       - lambda: jmgo_key(${key_down});
 
   - platform: template
     name: "Left"
+    device_id: "${projector_id}"
     icon: mdi:arrow-left-circle
     on_press:
       - lambda: jmgo_key(${key_left});
 
   - platform: template
     name: "Right"
+    device_id: "${projector_id}"
     icon: mdi:arrow-right-circle
     on_press:
       - lambda: jmgo_key(${key_right});
 
   - platform: template
     name: "OK"
+    device_id: "${projector_id}"
     icon: mdi:circle-outline
     on_press:
       - lambda: jmgo_key(${key_ok});
 
   - platform: template
     name: "Back"
+    device_id: "${projector_id}"
     icon: mdi:arrow-left
     on_press:
       - lambda: jmgo_key(${key_back});
 
   - platform: template
     name: "Home"
+    device_id: "${projector_id}"
     icon: mdi:home
     on_press:
       - lambda: jmgo_key(${key_home});
 
   - platform: template
     name: "Menu"
+    device_id: "${projector_id}"
     icon: mdi:menu
     on_press:
       - lambda: jmgo_key(${key_menu});
 
   - platform: template
     name: "Volume Up"
+    device_id: "${projector_id}"
     icon: mdi:volume-plus
     on_press:
       - lambda: jmgo_key(${key_vol_up});
 
   - platform: template
     name: "Volume Down"
+    device_id: "${projector_id}"
     icon: mdi:volume-minus
     on_press:
       - lambda: jmgo_key(${key_vol_down});
 
   - platform: template
     name: "Play"
+    device_id: "${projector_id}"
     icon: mdi:play
     on_press:
       - lambda: jmgo_key(${key_play});
 
   - platform: template
     name: "Sleep"
+    device_id: "${projector_id}"
     icon: mdi:power-sleep
     entity_category: diagnostic
     on_press:
@@ -243,6 +261,7 @@ button:
 
   - platform: template
     name: "Power Menu"
+    device_id: "${projector_id}"
     icon: mdi:power-settings
     entity_category: diagnostic
     on_press:

@@ -76,6 +76,7 @@ are no entity naming conflicts.
 |---|---|---|
 | `device_name` | `jmgo-projector` | ESPHome node hostname — used for OTA and mDNS only |
 | `projector_name` | `Projector` | HA device display name — all entities are grouped under it |
+| `projector_id` | _(empty)_ | HA device ID to bind all entities to (copy from the device page URL in HA) |
 | `projector_ip` | `192.168.1.100` | Projector LAN IP — **must override** |
 | `key_up` | `19` | D-pad Up |
 | `key_down` | `20` | D-pad Down |

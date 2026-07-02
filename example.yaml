@@ -5,6 +5,7 @@
 substitutions:
   device_name:    "jmgo-n1s-4k"     # ESPHome node ID (lowercase, hyphens) — for OTA and mDNS
   projector_name: "N1S 4K"          # HA device display name — entities appear under this device
+  projector_id:   ""                 # HA device ID to bind entities to (from HA device page URL)
   projector_ip:   "192.168.1.100"   # projector static IP
 
 packages:
