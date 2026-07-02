@@ -1,0 +1,227 @@
+# JMGO Projector ESPHome Package
+#
+# Include in your device YAML:
+#
+#   packages:
+#     jmgo: github://aalaei/jmgo-esphome/jmgo_package.yaml@main
+#
+# Then override substitutions as needed (at minimum, set projector_ip).
+# Everything else — buttons, power switch, BLE wake, TCP state probe — is
+# provided by this package. You supply only board, wifi, api, ota, logger.
+
+substitutions:
+  projector_ip:       "192.168.1.100"  # OVERRIDE with your projector's static IP
+
+  # ── Key IDs (Android KeyEvent codes) ─────────────────────────────────────────
+  # All confirmed from PCAPdroid capture of the JMGO Android app on an N1S 4K.
+  # Override any of these if your model uses different codes.
+
+  # Navigation
+  key_up:             "19"    # KEYCODE_DPAD_UP
+  key_down:           "20"    # KEYCODE_DPAD_DOWN
+  key_left:           "21"    # KEYCODE_DPAD_LEFT
+  key_right:          "22"    # KEYCODE_DPAD_RIGHT
+  key_ok:             "23"    # KEYCODE_DPAD_CENTER
+
+  # System
+  key_back:           "4"     # KEYCODE_BACK
+  key_home:           "3"     # KEYCODE_HOME
+  key_menu:           "82"    # KEYCODE_MENU
+
+  # Volume
+  key_vol_up:         "24"    # KEYCODE_VOLUME_UP
+  key_vol_down:       "25"    # KEYCODE_VOLUME_DOWN
+
+  # Media
+  key_play:           "126"   # KEYCODE_MEDIA_PLAY
+
+  # JMGO custom (from PCAP — may vary by firmware version)
+  key_quick_settings: "145"   # Quick Settings panel
+  key_calibrate:      "2012"  # Lens/image calibration
+  key_sleep:          "2011"  # Short press = standby
+
+# ── Component: injects C++ header + IP setup ─────────────────────────────────
+external_components:
+  - source: github://aalaei/jmgo-esphome@main
+    components: [jmgo]
+    refresh: 1d
+
+jmgo:
+  projector_ip: "${projector_ip}"
+
+# ── Power state (TCP probe every 5 s) ────────────────────────────────────────
+globals:
+  - id: g_online
+    type: bool
+    restore_value: false
+    initial_value: 'false'
+
+interval:
+  - interval: 5s
+    then:
+      - lambda: |-
+          if (jmgo_projector_ip_u32 == 0) return;
+          int fd = ::socket(AF_INET, SOCK_STREAM, 0);
+          if (fd < 0) return;
+          ::fcntl(fd, F_SETFL, ::fcntl(fd, F_GETFL, 0) | O_NONBLOCK);
+          struct sockaddr_in addr{};
+          addr.sin_family      = AF_INET;
+          addr.sin_port        = htons(9005);
+          addr.sin_addr.s_addr = jmgo_projector_ip_u32;
+          ::connect(fd, (struct sockaddr*)&addr, sizeof(addr));
+          fd_set w; FD_ZERO(&w); FD_SET(fd, &w);
+          struct timeval tv{0, 300000};
+          bool online = false;
+          if (::select(fd + 1, nullptr, &w, nullptr, &tv) > 0) {
+            int err = 0; socklen_t el = sizeof(err);
+            ::getsockopt(fd, SOL_SOCKET, SO_ERROR, &err, &el);
+            online = (err == 0);
+          }
+          ::close(fd);
+          if (id(g_online) != online) {
+            id(g_online) = online;
+            id(projector_online).publish_state(online);
+          }
+
+binary_sensor:
+  - platform: template
+    id: projector_online
+    name: "Projector Online"
+    device_class: connectivity
+
+# ── Scripts ──────────────────────────────────────────────────────────────────
+script:
+  - id: script_ble_wake
+    mode: single
+    then:
+      - lambda: jmgo_ble_wake_burst();
+
+  - id: script_power_on
+    mode: single
+    then:
+      - lambda: jmgo_ble_wake_burst();
+
+  - id: script_power_off
+    mode: single
+    then:
+      - lambda: jmgo_key(${key_sleep});
+
+  - id: script_quick_settings
+    mode: single
+    then:
+      - lambda: jmgo_key(${key_quick_settings});
+
+# ── Power switch ──────────────────────────────────────────────────────────────
+switch:
+  - platform: template
+    id: switch_power
+    name: "Power"
+    icon: mdi:projector
+    restore_mode: DISABLED
+    lambda: return id(g_online);
+    turn_on_action:
+      - script.execute: script_power_on
+    turn_off_action:
+      - script.execute: script_power_off
+
+# ── Buttons ───────────────────────────────────────────────────────────────────
+button:
+
+  - platform: template
+    name: "BLE Wake"
+    icon: mdi:bluetooth
+    entity_category: diagnostic
+    on_press:
+      - script.execute: script_ble_wake
+
+  - platform: template
+    name: "Quick Settings"
+    icon: mdi:cog-outline
+    on_press:
+      - script.execute: script_quick_settings
+
+  - platform: template
+    name: "Calibrate"
+    icon: mdi:image-filter-center-focus
+    on_press:
+      - lambda: jmgo_key(${key_calibrate});
+
+  - platform: template
+    name: "Up"
+    icon: mdi:arrow-up-circle
+    on_press:
+      - lambda: jmgo_key(${key_up});
+
+  - platform: template
+    name: "Down"
+    icon: mdi:arrow-down-circle
+    on_press:
+      - lambda: jmgo_key(${key_down});
+
+  - platform: template
+    name: "Left"
+    icon: mdi:arrow-left-circle
+    on_press:
+      - lambda: jmgo_key(${key_left});
+
+  - platform: template
+    name: "Right"
+    icon: mdi:arrow-right-circle
+    on_press:
+      - lambda: jmgo_key(${key_right});
+
+  - platform: template
+    name: "OK"
+    icon: mdi:circle-outline
+    on_press:
+      - lambda: jmgo_key(${key_ok});
+
+  - platform: template
+    name: "Back"
+    icon: mdi:arrow-left
+    on_press:
+      - lambda: jmgo_key(${key_back});
+
+  - platform: template
+    name: "Home"
+    icon: mdi:home
+    on_press:
+      - lambda: jmgo_key(${key_home});
+
+  - platform: template
+    name: "Menu"
+    icon: mdi:menu
+    on_press:
+      - lambda: jmgo_key(${key_menu});
+
+  - platform: template
+    name: "Volume Up"
+    icon: mdi:volume-plus
+    on_press:
+      - lambda: jmgo_key(${key_vol_up});
+
+  - platform: template
+    name: "Volume Down"
+    icon: mdi:volume-minus
+    on_press:
+      - lambda: jmgo_key(${key_vol_down});
+
+  - platform: template
+    name: "Play"
+    icon: mdi:play
+    on_press:
+      - lambda: jmgo_key(${key_play});
+
+  - platform: template
+    name: "Sleep"
+    icon: mdi:power-sleep
+    entity_category: diagnostic
+    on_press:
+      - lambda: jmgo_key(${key_sleep});
+
+  - platform: template
+    name: "Power Menu"
+    icon: mdi:power-settings
+    entity_category: diagnostic
+    on_press:
+      - lambda: jmgo_key(${key_sleep}, 3000, 0);

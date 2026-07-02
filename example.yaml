@@ -1,0 +1,41 @@
+# Minimal ESPHome config for JMGO projector control.
+# Copy this file, set your projector IP and secrets, then flash.
+#
+# All buttons, the power switch, and BLE wake are provided by the package.
+# You only need to configure the sections below.
+
+substitutions:
+  projector_ip: "192.168.1.100"   # ← your projector's static IP
+
+packages:
+  jmgo: github://aalaei/jmgo-esphome/jmgo_package.yaml@main
+
+esphome:
+  name: jmgo-projector
+  friendly_name: "JMGO Projector"
+
+esp32:
+  board: esp32-c3-devkitm-1
+  framework:
+    type: esp-idf
+    sdkconfig_options:
+      CONFIG_BT_ENABLED: "y"
+      CONFIG_BT_NIMBLE_ENABLED: "y"
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+  ap:
+    ssid: "JMGO Projector Fallback"
+    password: !secret wifi_ap_password
+
+captive_portal:
+logger:
+
+api:
+  encryption:
+    key: !secret api_key
+
+ota:
+  - platform: esphome
+    password: !secret ota_password
