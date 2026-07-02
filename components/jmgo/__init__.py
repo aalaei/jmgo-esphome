@@ -1,11 +1,12 @@
 import esphome.codegen as cg
 import esphome.config_validation as cv
+from esphome.core import CORE
 
 # ESPHome external component for JMGO projector LAN + BLE control.
 #
-# Injects jmgo_lan_ble.h into the build and calls jmgo_set_projector_ip()
-# during setup() so that all lambdas in the package YAML can call
-# jmgo_key(), jmgo_lan_send(), and jmgo_ble_wake_burst() directly.
+# Injects jmgo_lan_ble.h into the build, sets the projector IP during setup(),
+# and enables CONFIG_BT_ENABLED + CONFIG_BT_NIMBLE_ENABLED automatically so
+# users don't need sdkconfig_options in their YAML.
 
 CODEOWNERS = []
 
@@ -17,3 +18,8 @@ async def to_code(config):
     cg.add_global(cg.RawExpression('#include "jmgo_lan_ble.h"'))
     ip = config["projector_ip"]
     cg.add(cg.RawExpression(f'jmgo_set_projector_ip("{ip}")'))
+
+    if CORE.using_esp_idf:
+        from esphome.components.esp32 import add_idf_sdkconfig_option
+        add_idf_sdkconfig_option("CONFIG_BT_ENABLED", True)
+        add_idf_sdkconfig_option("CONFIG_BT_NIMBLE_ENABLED", True)
