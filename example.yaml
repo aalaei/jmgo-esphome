@@ -21,9 +21,7 @@ esp32:
   board: esp32-c3-devkitm-1
   framework:
     type: esp-idf
-    sdkconfig_options:
-      CONFIG_BT_ENABLED: "y"
-      CONFIG_BT_NIMBLE_ENABLED: "y"
+  # NimBLE sdkconfig options are set automatically by jmgo_package.yaml
 
 wifi:
   ssid: !secret wifi_ssid

@@ -43,6 +43,19 @@ substitutions:
   key_calibrate:      "2012"  # Lens/image calibration
   key_sleep:          "2011"  # Short press = standby
 
+# ── ESP-IDF sdkconfig ─────────────────────────────────────────────────────────
+# BLE wake uses NimBLE and requires these two options.
+# They are merged into the user's esp32: block automatically by the package
+# system — no need to add them to your device YAML.
+# Do NOT use this package on a device that also has bluetooth_proxy —
+# NimBLE (used here) and Bluedroid (used by bluetooth_proxy) are mutually
+# exclusive in ESP-IDF 5.x.
+esp32:
+  framework:
+    sdkconfig_options:
+      CONFIG_BT_ENABLED: "y"
+      CONFIG_BT_NIMBLE_ENABLED: "y"
+
 # ── Device identity ───────────────────────────────────────────────────────────
 # All entities are bound to this device in Home Assistant.
 # Override device_name and friendly_name in your substitutions to rename.
