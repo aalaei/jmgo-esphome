@@ -10,7 +10,9 @@
 # provided by this package. You supply only board, wifi, api, ota, logger.
 
 substitutions:
-  projector_ip:       "192.168.1.100"  # OVERRIDE with your projector's static IP
+  device_name:        "jmgo-projector"     # ESPHome node ID (lowercase, hyphens only)
+  friendly_name:      "JMGO Projector"     # Display name in Home Assistant
+  projector_ip:       "192.168.1.100"      # OVERRIDE with your projector's static IP
 
   # ── Key IDs (Android KeyEvent codes) ─────────────────────────────────────────
   # All confirmed from PCAPdroid capture of the JMGO Android app on an N1S 4K.
@@ -39,6 +41,13 @@ substitutions:
   key_quick_settings: "145"   # Quick Settings panel
   key_calibrate:      "2012"  # Lens/image calibration
   key_sleep:          "2011"  # Short press = standby
+
+# ── Device identity ───────────────────────────────────────────────────────────
+# All entities are bound to this device in Home Assistant.
+# Override device_name and friendly_name in your substitutions to rename.
+esphome:
+  name: ${device_name}
+  friendly_name: ${friendly_name}
 
 # ── Component: injects C++ header + IP setup ─────────────────────────────────
 external_components:

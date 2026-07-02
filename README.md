@@ -18,14 +18,12 @@ Minimum YAML to control your projector (see `example.yaml` for the full version)
 
 ```yaml
 substitutions:
-  projector_ip: "192.168.1.100"   # your projector's static IP
+  device_name:   "jmgo-projector"    # node ID (lowercase, hyphens)
+  friendly_name: "JMGO Projector"    # device label in Home Assistant
+  projector_ip:  "192.168.1.100"     # projector static IP
 
 packages:
   jmgo: github://aalaei/jmgo-esphome/jmgo_package.yaml@main
-
-esphome:
-  name: jmgo-projector
-  friendly_name: "JMGO Projector"
 
 esp32:
   board: esp32-c3-devkitm-1
