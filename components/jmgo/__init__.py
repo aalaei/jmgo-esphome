@@ -19,6 +19,10 @@ CONFIG_SCHEMA = cv.Schema({
 })
 
 async def to_code(config):
-    cg.add_global(cg.RawExpression('#include "jmgo_lan_ble.h"'))
+    # RawStatement (not RawExpression) avoids add_global wrapping it in
+    # ExpressionStatement which appends ";". #include must not have one.
+    # Full path because ESPHome's include root is src/ and external components
+    # land at src/esphome/components/<name>/.
+    cg.add_global(cg.RawStatement('#include "esphome/components/jmgo/jmgo_lan_ble.h"'))
     ip = config["projector_ip"]
     cg.add(cg.RawExpression(f'jmgo_set_projector_ip("{ip}")'))
