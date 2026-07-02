@@ -54,7 +54,7 @@ esphome:
 external_components:
   - source: github://aalaei/jmgo-esphome@main
     components: [jmgo]
-    refresh: 1d
+    refresh: 1h
 
 jmgo:
   projector_ip: "${projector_ip}"
