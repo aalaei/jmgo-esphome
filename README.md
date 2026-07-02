@@ -56,19 +56,39 @@ no `.h` file to download manually.
 
 ## How entities appear in Home Assistant
 
-`projector_name` becomes the HA device display name. All entities appear under that
-device with simple names — no prefix needed:
+The package intentionally omits the `esphome:` block so your own config's
+`devices:` and `areas:` definitions survive the package merge without conflict.
+You must include `esphome:` in your device YAML.
 
-| `projector_name` | HA device name | Example entity names |
-|------------------|----------------|----------------------|
-| `"N1S 4K"` | N1S 4K | Power, Up, Down, Online … |
-| `"Living Room"` | Living Room | Power, Up, Down, Online … |
-| `"Bedroom"` | Bedroom | Power, Up, Down, Online … |
+### Simple setup — one HA device
 
-Two projectors on separate ESP32 nodes each get their own HA device, so there
-are no entity naming conflicts.
+```yaml
+esphome:
+  name: ${device_name}
+  friendly_name: ${projector_name}   # projector entities appear under this device
+```
 
-`device_name` is only used for the ESPHome node hostname (OTA updates, mDNS).
+### Sub-device setup — projector as a child device
+
+Define the projector as a sub-device and set `projector_id` to the same `id`:
+
+```yaml
+substitutions:
+  device_name:    "esplux"
+  projector_name: "JMGO N1S 4K"
+  projector_id:   "jmgo_n1s_4k"     # must match devices: id below
+  projector_ip:   "192.168.11.207"
+
+esphome:
+  name: ${device_name}
+  friendly_name: "ESP LUX"           # ESP32 board device name
+  devices:
+    - id: ${projector_id}
+      name: ${projector_name}
+```
+
+All 18 projector entities (Power, Up, Down …) will appear under the
+**JMGO N1S 4K** sub-device in HA. The ESP32 board itself remains **ESP LUX**.
 
 ## Substitutions reference
 

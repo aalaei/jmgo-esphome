@@ -56,13 +56,6 @@ esp32:
       CONFIG_BT_ENABLED: "y"
       CONFIG_BT_NIMBLE_ENABLED: "y"
 
-# ── Device identity ───────────────────────────────────────────────────────────
-# projector_name is the HA device display name — all entities appear under it.
-# device_name is the ESPHome node hostname used for OTA and mDNS only.
-esphome:
-  name: ${device_name}
-  friendly_name: ${projector_name}
-
 # ── Component: injects C++ header + IP setup ─────────────────────────────────
 external_components:
   - source: github://aalaei/jmgo-esphome@main

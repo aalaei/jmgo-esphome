@@ -11,6 +11,16 @@ substitutions:
 packages:
   jmgo: github://aalaei/jmgo-esphome/jmgo_package.yaml@main
 
+# esphome: must be in your own config — the package intentionally omits it
+# so your devices: / areas: definitions survive the package merge.
+esphome:
+  name: ${device_name}
+  friendly_name: ${projector_name}   # or your own friendly_name
+  # To assign projector entities to a sub-device:
+  # devices:
+  #   - id: ${projector_id}
+  #     name: ${projector_name}
+
 esp32:
   # Set board to match your hardware, e.g.:
   #   esp32-c3-devkitm-1   (ESP32-C3)
