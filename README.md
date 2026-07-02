@@ -27,7 +27,7 @@ packages:
   jmgo: github://aalaei/jmgo-esphome/jmgo_package.yaml@main
 
 esp32:
-  board: esp32-c3-devkitm-1
+  board: esp32-c3-devkitm-1   # change to match your chip — see Requirements
   framework:
     type: esp-idf
 
@@ -139,6 +139,17 @@ of the LAN protocol and BLE wake mechanism made this package possible.
 
 ## Requirements
 
-- ESP32-C3 (BLE + Wi-Fi, other ESP32 variants with BLE should also work)
+- Any ESP32 variant with BLE + Wi-Fi running ESP-IDF framework:
+
+  | Chip | Board name for `esp32: board:` |
+  |------|-------------------------------|
+  | ESP32-C3 | `esp32-c3-devkitm-1` |
+  | ESP32-S3 | `esp32-s3-devkitc-1` |
+  | ESP32-C6 | `esp32-c6-devkitc-1` |
+  | ESP32-C5 | `esp32-c5-devkitc-1` |
+  | Classic ESP32 | `esp32dev` |
+
+  The C++ driver uses only NimBLE + lwIP POSIX sockets — no chip-specific code.
+
 - ESPHome 2024.6 or newer
 - Projector on the same LAN with a static IP

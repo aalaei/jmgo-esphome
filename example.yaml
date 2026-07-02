@@ -12,6 +12,12 @@ packages:
   jmgo: github://aalaei/jmgo-esphome/jmgo_package.yaml@main
 
 esp32:
+  # Set board to match your hardware, e.g.:
+  #   esp32-c3-devkitm-1   (ESP32-C3)
+  #   esp32-s3-devkitc-1   (ESP32-S3)
+  #   esp32-c6-devkitc-1   (ESP32-C6)
+  #   esp32-c5-devkitc-1   (ESP32-C5)
+  #   esp32dev              (classic ESP32)
   board: esp32-c3-devkitm-1
   framework:
     type: esp-idf
