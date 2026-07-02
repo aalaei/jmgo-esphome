@@ -1,7 +1,8 @@
 # JMGO Projector — ESPHome Package
 
-Control a JMGO projector from Home Assistant using an ESP32-C3 over Wi-Fi.
+Control a JMGO projector from Home Assistant using an ESP32 over Wi-Fi.
 Sends key events via LAN (TCP port 9005) and wakes the projector via BLE advertising.
+Supports ESP32-C3, C6, S3, C5, and classic ESP32.
 
 ## Features
 
@@ -58,7 +59,9 @@ no `.h` file to download manually.
 
 ## Entity naming
 
-`projector_name` is prepended to every entity exposed to Home Assistant:
+`projector_name` is prepended to every entity exposed to Home Assistant,
+and every entity is explicitly bound to the ESPHome node's HA device via
+`device_id: "${device_name}"`:
 
 | `projector_name` value | Example entity names in HA |
 |------------------------|---------------------------|
@@ -66,8 +69,8 @@ no `.h` file to download manually.
 | `"Living Room"` | Living Room Power, Living Room Up … |
 | `"Bedroom"` | Bedroom Power, Bedroom Up … |
 
-This means two projectors controlled by the same (or different) ESP32 nodes will
-never have colliding entity names in Home Assistant.
+Two projectors controlled by separate ESP32 nodes will never have colliding
+entity names, and each projector's entities are grouped under their own HA device.
 
 ## Substitutions reference
 
@@ -158,5 +161,5 @@ of the LAN protocol and BLE wake mechanism made this package possible.
 
   The C++ driver uses only NimBLE + lwIP POSIX sockets — no chip-specific code.
 
-- ESPHome 2024.6 or newer
+- ESPHome 2024.6 or newer (tested on 2026.6.1)
 - Projector on the same LAN with a static IP
