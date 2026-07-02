@@ -11,7 +11,7 @@ Supports ESP32-C3, C6, S3, C5, and classic ESP32.
 - Volume Up / Down
 - Play, Quick Settings, Calibrate, Sleep
 - BLE wake burst for cold-power-on
-- All key IDs and entity names are overridable via YAML substitutions — no C++ edits needed
+- All key IDs are overridable via YAML substitutions — no C++ edits needed
 
 ## Usage
 
@@ -19,10 +19,9 @@ Minimum YAML to control your projector (see `example.yaml` for the full version)
 
 ```yaml
 substitutions:
-  device_name:    "jmgo-projector"      # ESPHome node ID (lowercase, hyphens only)
-  friendly_name:  "JMGO Controller"     # HA device name for the ESP32 hardware
-  projector_name: "N1S 4K"             # label bound to every entity — set per projector
-  projector_ip:   "192.168.1.100"       # projector static IP (must override)
+  device_name:    "jmgo-n1s-4k"     # ESPHome node ID (lowercase, hyphens) — for OTA and mDNS
+  projector_name: "N1S 4K"          # HA device display name — entities appear under this device
+  projector_ip:   "192.168.1.100"   # projector static IP (must override)
 
 packages:
   jmgo: github://aalaei/jmgo-esphome/jmgo_package.yaml@main
@@ -32,7 +31,7 @@ esp32:
   framework:
     type: esp-idf
   # NimBLE sdkconfig options (CONFIG_BT_ENABLED, CONFIG_BT_NIMBLE_ENABLED)
-  # are set automatically by the package — no need to add them here.
+  # are injected automatically by the package — no extra lines needed here.
 
 wifi:
   ssid: !secret wifi_ssid
@@ -52,33 +51,31 @@ logger:
 ESPHome pulls the package and the C++ driver from this repo automatically —
 no `.h` file to download manually.
 
-> **Note:** The package automatically injects `CONFIG_BT_ENABLED` and
-> `CONFIG_BT_NIMBLE_ENABLED` into the build — no extra sdkconfig lines needed.
-> Do **not** combine this package with a `bluetooth_proxy` on the same device —
-> Bluetooth proxy uses the Bluedroid BLE stack, which conflicts with NimBLE.
+> **Note:** Do **not** combine this package with a `bluetooth_proxy` on the same device.
+> Bluetooth proxy uses the Bluedroid BLE stack, which conflicts with NimBLE (used for BLE wake).
 
-## Entity naming
+## How entities appear in Home Assistant
 
-`projector_name` is prepended to every entity exposed to Home Assistant,
-and every entity is explicitly bound to the ESPHome node's HA device via
-`device_id: "${device_name}"`:
+`projector_name` becomes the HA device display name. All entities appear under that
+device with simple names — no prefix needed:
 
-| `projector_name` value | Example entity names in HA |
-|------------------------|---------------------------|
-| `"N1S 4K"` | N1S 4K Power, N1S 4K Up, N1S 4K Online … |
-| `"Living Room"` | Living Room Power, Living Room Up … |
-| `"Bedroom"` | Bedroom Power, Bedroom Up … |
+| `projector_name` | HA device name | Example entity names |
+|------------------|----------------|----------------------|
+| `"N1S 4K"` | N1S 4K | Power, Up, Down, Online … |
+| `"Living Room"` | Living Room | Power, Up, Down, Online … |
+| `"Bedroom"` | Bedroom | Power, Up, Down, Online … |
 
-Two projectors controlled by separate ESP32 nodes will never have colliding
-entity names, and each projector's entities are grouped under their own HA device.
+Two projectors on separate ESP32 nodes each get their own HA device, so there
+are no entity naming conflicts.
+
+`device_name` is only used for the ESPHome node hostname (OTA updates, mDNS).
 
 ## Substitutions reference
 
 | Substitution | Default | Description |
 |---|---|---|
-| `device_name` | `jmgo-projector` | ESPHome node hostname — used for OTA and mDNS |
-| `friendly_name` | `JMGO Projector` | HA device name for the ESP32 hardware |
-| `projector_name` | `Projector` | Prefix for every entity name in HA |
+| `device_name` | `jmgo-projector` | ESPHome node hostname — used for OTA and mDNS only |
+| `projector_name` | `Projector` | HA device display name — all entities are grouped under it |
 | `projector_ip` | `192.168.1.100` | Projector LAN IP — **must override** |
 | `key_up` | `19` | D-pad Up |
 | `key_down` | `20` | D-pad Down |
