@@ -1,6 +1,5 @@
 import esphome.codegen as cg
 import esphome.config_validation as cv
-from esphome.core import CORE
 
 # ESPHome external component for JMGO projector LAN + BLE control.
 #
@@ -19,7 +18,12 @@ async def to_code(config):
     ip = config["projector_ip"]
     cg.add(cg.RawExpression(f'jmgo_set_projector_ip("{ip}")'))
 
-    if CORE.using_esp_idf:
+    # Enable BLE sdkconfig options when using ESP-IDF.
+    # Wrapped in try/except for compatibility across ESPHome versions —
+    # CORE.using_esp_idf was removed in newer releases.
+    try:
         from esphome.components.esp32 import add_idf_sdkconfig_option
         add_idf_sdkconfig_option("CONFIG_BT_ENABLED", True)
         add_idf_sdkconfig_option("CONFIG_BT_NIMBLE_ENABLED", True)
+    except Exception:
+        pass
