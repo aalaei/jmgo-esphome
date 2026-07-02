@@ -86,7 +86,7 @@ static void jmgo_key(uint16_t key_id, uint32_t hold_ms = 120, uint32_t after_ms 
   if (key_id < 128) {
     uint8_t pkt[] = {0x08, 0x12, 0x06, 0x0a, 0x04, 0x08, (uint8_t)key_id, 0x10, 0x01};
     jmgo_lan_send(pkt, sizeof(pkt));
-    delay(hold_ms);
+    esphome::delay(hold_ms);
     pkt[8] = 0x00;
     jmgo_lan_send(pkt, sizeof(pkt));
   } else {
@@ -95,11 +95,11 @@ static void jmgo_key(uint16_t key_id, uint32_t hold_ms = 120, uint32_t after_ms 
                      (uint8_t)(key_id >> 7),
                      0x10, 0x01};
     jmgo_lan_send(pkt, sizeof(pkt));
-    delay(hold_ms);
+    esphome::delay(hold_ms);
     pkt[9] = 0x00;
     jmgo_lan_send(pkt, sizeof(pkt));
   }
-  delay(after_ms);
+  esphome::delay(after_ms);
 }
 
 // BLE wake (IDF native NimBLE - lazy init).
@@ -128,8 +128,8 @@ static void jmgo_ble_init() {
   ble_hs_cfg.sync_cb = jmgo_ble_on_sync;
   nimble_port_freertos_init(jmgo_ble_host_task);
 
-  uint32_t t0 = millis();
-  while (!jmgo_nimble_synced && millis() - t0 < 5000) delay(10);
+  uint32_t t0 = esphome::millis();
+  while (!jmgo_nimble_synced && esphome::millis() - t0 < 5000) esphome::delay(10);
   if (!jmgo_nimble_synced)
     ESP_LOGE("jmgo", "NimBLE host did not sync within 5 s");
 }
@@ -147,9 +147,9 @@ static void jmgo_ble_advertise_one(const uint8_t* mfr, size_t mfr_len) {
   params.itvl_min = 0x20;
   params.itvl_max = 0x40;
   ble_gap_adv_start(BLE_OWN_ADDR_PUBLIC, NULL, BLE_HS_FOREVER, &params, NULL, NULL);
-  delay(250);
+  esphome::delay(250);
   ble_gap_adv_stop();
-  delay(30);
+  esphome::delay(30);
 }
 
 // Blocks ~4 s (plus up to 5 s on the very first call for NimBLE host sync).
@@ -159,11 +159,11 @@ static void jmgo_ble_wake_burst() {
     ESP_LOGE("jmgo", "BLE not ready, skipping wake burst");
     return;
   }
-  uint32_t start = millis();
-  while (millis() - start < 4000) {
+  uint32_t start = esphome::millis();
+  while (esphome::millis() - start < 4000) {
     for (int i = 0; i < 5; i++) {
       jmgo_ble_advertise_one(JMGO_WAKE_PAYLOADS[i], sizeof(JMGO_WAKE_PAYLOADS[i]));
-      if (millis() - start >= 4000) break;
+      if (esphome::millis() - start >= 4000) break;
     }
   }
   ble_gap_adv_stop();
