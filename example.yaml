@@ -3,9 +3,10 @@
 # All entities, the power switch, and BLE wake come from the package.
 
 substitutions:
-  device_name:   "jmgo-n1s-4k"           # node ID  (lowercase, hyphens)
-  friendly_name: "JMGO N1S 4K"           # device label in Home Assistant
-  projector_ip:  "192.168.1.100"          # projector static IP
+  device_name:    "jmgo-n1s-4k"          # ESPHome node ID (lowercase, hyphens)
+  friendly_name:  "JMGO Controller"       # HA device name for the ESP32 hardware
+  projector_name: "N1S 4K"               # prefix bound to every entity name
+  projector_ip:   "192.168.1.100"         # projector static IP
 
 packages:
   jmgo: github://aalaei/jmgo-esphome/jmgo_package.yaml@main
