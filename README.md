@@ -179,5 +179,7 @@ of the LAN protocol and BLE wake mechanism made this package possible.
 
   The C++ driver uses only NimBLE + lwIP POSIX sockets — no chip-specific code.
 
-- ESPHome 2024.6 or newer (tested on 2026.6.1)
+- ESPHome 2024.6 or newer (tested on 2026.6.1, 2026.8.x and 2026.9.0)
+
+  Requires no extra config on ESPHome 2026.9.0+; the component requests the ESP-IDF `bt` component itself.
 - Projector on the same LAN with a static IP

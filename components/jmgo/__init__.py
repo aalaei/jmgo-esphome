@@ -1,5 +1,6 @@
 import esphome.codegen as cg
 import esphome.config_validation as cv
+from esphome.components import esp32
 
 # ESPHome external component for JMGO projector LAN + BLE control.
 #
@@ -11,6 +12,10 @@ import esphome.config_validation as cv
 # This component intentionally does NOT set those options — doing so
 # via the Python API conflicts with other BLE stacks (e.g. bluetooth_proxy
 # uses Bluedroid, not NimBLE) and the correct values depend on your device.
+#
+# ESPHome 2026.9.0+ excludes the ESP-IDF `bt` component by default, so it is
+# requested explicitly below; otherwise the NimBLE headers are not on the
+# include path. The hasattr guards keep older ESPHome versions working.
 
 CODEOWNERS = []
 
@@ -19,6 +24,10 @@ CONFIG_SCHEMA = cv.Schema({
 })
 
 async def to_code(config):
+    if hasattr(esp32, "request_bluetooth"):
+        esp32.request_bluetooth()
+    elif hasattr(esp32, "include_builtin_idf_component"):
+        esp32.include_builtin_idf_component("bt")
     # RawStatement (not RawExpression) avoids add_global wrapping it in
     # ExpressionStatement which appends ";". #include must not have one.
     # Full path because ESPHome's include root is src/ and external components
